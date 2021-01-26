@@ -19,6 +19,14 @@ import console
 
 class BuildConfig:
     def __init__(self):
-        self.conf = configparser.ConfigParser()
-        if not self.conf.read('build.conf'):
+        config = configparser.ConfigParser()
+        if not config.read('build.conf'):
             console.error('couldn\'t read configuration file `build.conf\'')
+        try:
+            install_dirs = config['InstallDirs']
+        except AttributeError:
+            console.error('config file missing required section `InstallDirs\'')
+        try:
+            targets = config['Targets']
+        except AttributeError:
+            console.error('config file missing required section `Targets\'')

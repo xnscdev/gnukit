@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # build.py -- this file is part of gnukit.
 # Copyright (C) 2020 XNSC
 #
@@ -13,6 +15,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+import console
 
 def build_all():
     pass
