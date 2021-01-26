@@ -16,10 +16,16 @@
 
 import configparser
 import console
+import re
 
 def set_from(self, prop, attr):
     try:
         value = prop[attr]
+        match = re.search('\\$\\{([\w_][\w\d_]*)\\}', value)
+        while match is not None:
+            value = value[:match.span()[0]] + \
+                getattr(self, match.group(1), '') + value[match.span()[1]:]
+            match = re.search('\\$\\{([\w_][\w\d_]*)\\}', value)
         setattr(self, attr, value)
     except AttributeError:
         console.warn('config file missing `%s\', leaving as default value' %
