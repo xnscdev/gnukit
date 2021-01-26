@@ -16,10 +16,34 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import config
 import console
 
+INSTALLDIRS = [
+    'prefix',
+    'eprefix',
+    'bindir',
+    'sbindir',
+    'libexecdir',
+    'sysconfdir',
+    'sharedstatedir',
+    'localstatedir',
+    'runstatedir',
+    'libdir',
+    'includedir',
+    'datadir',
+    'infodir',
+    'localedir',
+    'mandir',
+    'docdir'
+]
+
 def build_all():
-    pass
+    build_conf = config.BuildConfig()
+
+    print('Installation directories')
+    for d in INSTALLDIRS:
+        print('%-24s %s' % (d, getattr(build_conf, d)))
 
 if __name__ == '__main__':
     build_all()

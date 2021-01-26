@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# build -- this file is part of gnukit.
+# build.sh -- this file is part of gnukit.
 # Copyright (C) 2020 XNSC
 #
 # This program is free software: you can redistribute it and/or modify
@@ -27,5 +27,4 @@ if [ -z "`$PYTHON --version 2>/dev/null`" ]; then
     exit 1
 fi
 
-cd "`dirname $0`/src"
-$PYTHON build.py
+$PYTHON "`dirname $0`/src/build.py"

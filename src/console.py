@@ -24,3 +24,11 @@ def error(msg):
     for l in text[1:]:
         print('      ', l, file=sys.stderr)
     sys.exit(1)
+
+def warn(msg):
+    text = list(filter(lambda x: x, msg.splitlines()))
+    if len(text) < 1:
+        return
+    print('error:', text[0], file=sys.stderr)
+    for l in text[1:]:
+        print('      ', l, file=sys.stderr)

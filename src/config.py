@@ -17,6 +17,14 @@
 import configparser
 import console
 
+def set_from(self, prop, attr):
+    try:
+        value = prop[attr]
+        setattr(self, attr, value)
+    except AttributeError:
+        console.warn('config file missing `%s\', leaving as default value' %
+                     attr)
+
 class BuildConfig:
     def __init__(self):
         config = configparser.ConfigParser()
@@ -30,3 +38,24 @@ class BuildConfig:
             targets = config['Targets']
         except AttributeError:
             console.error('config file missing required section `Targets\'')
+
+        # Set configuration file data
+        set_from(self, install_dirs, 'prefix')
+        set_from(self, install_dirs, 'eprefix')
+        set_from(self, install_dirs, 'bindir')
+        set_from(self, install_dirs, 'sbindir')
+        set_from(self, install_dirs, 'libexecdir')
+        set_from(self, install_dirs, 'sysconfdir')
+        set_from(self, install_dirs, 'sharedstatedir')
+        set_from(self, install_dirs, 'localstatedir')
+        set_from(self, install_dirs, 'runstatedir')
+        set_from(self, install_dirs, 'libdir')
+        set_from(self, install_dirs, 'includedir')
+        set_from(self, install_dirs, 'datadir')
+        set_from(self, install_dirs, 'infodir')
+        set_from(self, install_dirs, 'localedir')
+        set_from(self, install_dirs, 'mandir')
+        set_from(self, install_dirs, 'docdir')
+        set_from(self, targets, 'build')
+        set_from(self, targets, 'host')
+        set_from(self, targets, 'target')
