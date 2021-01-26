@@ -43,7 +43,8 @@ def build_all():
 
     print('Installation directories')
     for d in INSTALLDIRS:
-        print('%-24s %s' % (d, getattr(build_conf, d)))
+        value = getattr(build_conf, d)
+        print('%-24s %s' % (d, value if value else 'default'))
 
 if __name__ == '__main__':
     build_all()

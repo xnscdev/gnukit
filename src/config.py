@@ -27,9 +27,8 @@ def set_from(self, prop, attr):
                 getattr(self, match.group(1), '') + value[match.span()[1]:]
             match = re.search('\\$\\{([\w_][\w\d_]*)\\}', value)
         setattr(self, attr, value)
-    except AttributeError:
-        console.warn('config file missing `%s\', leaving as default value' %
-                     attr)
+    except KeyError:
+        setattr(self, attr, '')
 
 class BuildConfig:
     def __init__(self):
