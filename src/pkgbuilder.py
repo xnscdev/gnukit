@@ -17,6 +17,7 @@
 import configparser
 import console
 import errno
+import hashlib
 import os
 import shutil
 import tarfile
@@ -71,6 +72,7 @@ class Package:
         self.version = config['Package']['version']
         self.build = config['Package']['build']
         self.srcdir = config['Package']['srcdir']
+        self.md5 = config['Package']['md5']
         self.urls = config['URLs'].values()
         self.config = build_conf
         self.__setup_build(config)
@@ -82,6 +84,11 @@ class Package:
                 print('  Attempting to download archive from ' + url)
                 with urllib.request.urlopen(url) as f:
                     data = f.read()
+                md5 = hashlib.md5(data).hexdigest()
+                if md5 != self.md5:
+                    print('  Bad MD5 checksum: got ' + md5)
+                    print('               expected ' + self.md5)
+                    continue
                 with open('archive', 'wb') as f:
                     f.write(data)
             except HTTPError:
