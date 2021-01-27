@@ -42,14 +42,17 @@ GNU_INSTALLDIRS = {
     'docdir': '--docdir'
 }
 
-def mkdir(name):
-    try:
-        shutil.rmtree(name)
-    except FileNotFoundError:
-        pass
+def mkdir(name, empty=True):
+    if empty:
+        try:
+            shutil.rmtree(name)
+        except FileNotFoundError:
+            pass
     try:
         os.mkdir(name)
     except OSError as e:
+        if e.errno == errno.EEXIST:
+            return
         console.error('failed to create directory `%s\': %s' %
                       (name, os.strerror(e.errno)))
 
@@ -78,6 +81,8 @@ class Package:
         self.__setup_build(config)
 
     def fetch(self):
+        if os.path.isfile('archive'):
+            return
         print('Downloading %s-%s' % (self.name, self.version))
         for url in self.urls:
             try:
@@ -99,6 +104,8 @@ class Package:
         raise HTTPError
 
     def extract(self):
+        if os.path.isdir(self.srcdir):
+            return
         print('Extracting %s-%s' % (self.name, self.version))
         with tarfile.open('archive') as f:
             f.extractall('.')
@@ -132,7 +139,7 @@ class Package:
 
     def run(self):
         cwd = os.getcwd()
-        mkdir(self.name)
+        mkdir(self.name, empty=False)
         os.chdir(self.name)
         self.fetch()
         self.extract()
@@ -151,5 +158,5 @@ def get_pkg(name, build_conf):
     return None
 
 def setup_buildenv():
-    mkdir('build')
+    mkdir('build', empty=False)
     os.chdir('build')
