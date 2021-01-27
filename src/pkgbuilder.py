@@ -59,9 +59,16 @@ class Package:
         self.config = build_conf
         self.__setup_build(config)
 
+    def fetch(self):
+        pass
+
     def configure(self):
         if self.build == 'GNU':
             conf_args = []
+            for d in ['build', 'host', 'target']:
+                value = getattr(self.config, d)
+                if value:
+                    conf_args.append('--%s=%s' % (d, value))
             for k, v in GNU_INSTALLDIRS.items():
                 value = getattr(self.config, k)
                 if value:
@@ -81,6 +88,7 @@ class Package:
 
     def run(self):
         print('Installing %s-%s' % (self.name, self.version))
+        self.fetch()
         self.configure()
 
 def get_pkg(name, build_conf):

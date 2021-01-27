@@ -39,12 +39,6 @@ INSTALLDIRS = [
     'docdir'
 ]
 
-TARGETS = [
-    'build',
-    'host',
-    'target'
-]
-
 def build_all():
     build_conf = config.BuildConfig()
 
@@ -54,7 +48,7 @@ def build_all():
         print('%-24s %s' % (d, value if value else 'default'))
 
     print('\nTarget triplets')
-    for d in TARGETS:
+    for d in ['build', 'host', 'target']:
         value = getattr(build_conf, d)
         print('%-24s %s' % (d, value if value else 'default'))
 

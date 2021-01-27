@@ -17,7 +17,7 @@
 import configparser
 import console
 
-def set_from(self, prop, attr, path=False):
+def set_from(self, prop, attr, path):
     try:
         if path and len(prop[attr]) > 0 and prop[attr][0] != '/':
             console.error('property `%s\' requires an absolute path' % attr)
@@ -61,9 +61,9 @@ class BuildConfig:
         set_from(self, install_dirs, 'localedir', True)
         set_from(self, install_dirs, 'mandir', True)
         set_from(self, install_dirs, 'docdir', True)
-        set_from(self, targets, 'build', True)
-        set_from(self, targets, 'host', True)
-        set_from(self, targets, 'target', True)
+        set_from(self, targets, 'build', False)
+        set_from(self, targets, 'host', False)
+        set_from(self, targets, 'target', False)
 
         # Set list of packages
         try:
