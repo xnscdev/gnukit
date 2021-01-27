@@ -66,6 +66,7 @@ def build_all():
     successes = 0
     failures = 0
     pkgbuilder.setup_buildenv()
+    built = []
     for d in build_conf.packages:
         pkg = pkgbuilder.get_pkg(d, build_conf)
         if pkg is None:
@@ -79,6 +80,7 @@ def build_all():
                 failures += 1
             else:
                 successes += 1
+                built.append(d)
     print('\nFinished jobs.')
     print('  %-24s %d' % ('Succeeded', successes))
     print('  %-24s %d' % ('Failed', failures))

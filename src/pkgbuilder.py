@@ -82,6 +82,7 @@ class Package:
         self.buildsys = config['Package']['build']
         self.srcdir = config['Package']['srcdir']
         self.md5 = config['Package']['md5']
+        self.dependencies = config['Package']['dependencies'].split()
         self.urls = config['URLs'].values()
         self.config = build_conf
         self.__setup_build(config)
@@ -166,6 +167,8 @@ class Package:
             exec_process(['make', 'install'])
 
     def run(self):
+        for d in self.dependencies:
+            print(d)
         cwd = os.getcwd()
         mkdir(self.name, empty=False)
         os.chdir(self.name)
