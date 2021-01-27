@@ -63,27 +63,26 @@ def build_all():
         return
     print()
 
-    successes = 0
-    failures = 0
     pkgbuilder.setup_buildenv()
-    built = []
     for d in build_conf.packages:
         pkg = pkgbuilder.get_pkg(d, build_conf)
         if pkg is None:
             console.warn('skipping package `%s\'' % d)
-            failures += 1
+            pkgbuilder.failures += 1
         else:
-            try:
-                pkg.run()
-            except:
-                console.warn('package `%s\' failed to build' % d)
-                failures += 1
-            else:
-                successes += 1
-                built.append(d)
+            pkg.run()
+            pkgbuilder.successes += 1
+            #try:
+            #    pkg.run()
+            #except:
+            #    pkgbuilder.failures += 1
+            #    console.warn('package `%s\' failed to build' % d)
+            #else:
+            #    pkgbuilder.successes += 1
+            #    pkgbuilder.built.append(d)
     print('\nFinished jobs.')
-    print('  %-24s %d' % ('Succeeded', successes))
-    print('  %-24s %d' % ('Failed', failures))
+    print('  %-24s %d' % ('Succeeded', pkgbuilder.successes))
+    print('  %-24s %d' % ('Failed', pkgbuilder.failures))
 
 if __name__ == '__main__':
     if sys.version_info[1] < 4:

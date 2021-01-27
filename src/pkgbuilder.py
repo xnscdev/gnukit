@@ -25,6 +25,10 @@ import sys
 import tarfile
 import urllib.request
 
+built = []
+successes = 0
+failures = 0
+
 GNU_INSTALLDIRS = {
     'prefix': '--prefix',
     'eprefix': '--exec-prefix',
@@ -167,8 +171,28 @@ class Package:
             exec_process(['make', 'install'])
 
     def run(self):
+        global successes
+        global failures
         for d in self.dependencies:
-            print(d)
+            if d in built:
+                continue
+            dpkg = Package(d, self.config)
+            if dpkg is None:
+                failures += 1
+                console.warn('unknown dependency ' + d)
+                raise ValueError
+            try:
+                print('Attempting to build %s-%s dependency %s-%s' %
+                      (self.name, self.version, dpkg.name, dpkg.version))
+                dpkg.run()
+            except:
+                failures += 1
+                console.warn('failed to build dependency %s-%s' %
+                             (dpkg.name, dpkg.version))
+                raise Exception
+            else:
+                successes += 1
+                built.append(d)
         cwd = os.getcwd()
         mkdir(self.name, empty=False)
         os.chdir(self.name)
