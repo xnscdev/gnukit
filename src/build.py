@@ -19,6 +19,7 @@
 import config
 import console
 import pkgbuilder
+import os
 import sys
 
 INSTALLDIRS = [
@@ -64,11 +65,13 @@ def build_all():
     print()
 
     pkgbuilder.setup_buildenv()
+    builddir = os.getcwd()
     for d in build_conf.packages:
         pkg = pkgbuilder.get_pkg(d, build_conf)
         if pkg is None:
             console.warn('skipping package `%s\'' % d)
             pkgbuilder.failures += 1
+            os.chdir(builddir)
         elif d not in pkgbuilder.built:
             try:
                 pkg.run()
