@@ -46,12 +46,12 @@ def build_all():
     print('\nInstallation directories')
     for d in INSTALLDIRS:
         value = getattr(build_conf, d)
-        print('%-24s %s' % (d, value if value else 'default'))
+        print('  %-24s %s' % (d, value if value else 'default'))
 
     print('\nTarget triplets')
     for d in ['build', 'host', 'target']:
         value = getattr(build_conf, d)
-        print('%-24s %s' % (d, value if value else 'default'))
+        print('  %-24s %s' % (d, value if value else 'default'))
 
     print('\nPackages to install')
     for d in build_conf.packages:
