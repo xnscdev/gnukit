@@ -69,7 +69,7 @@ def build_all():
         if pkg is None:
             console.warn('skipping package `%s\'' % d)
             pkgbuilder.failures += 1
-        elif d not in built:
+        elif d not in pkgbuilder.built:
             try:
                 pkg.run()
             except:
