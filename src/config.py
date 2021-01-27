@@ -39,6 +39,10 @@ class BuildConfig:
             targets = config['Targets']
         except AttributeError:
             console.error('config file missing required section `Targets\'')
+        try:
+            packages = config['Packages']
+        except AttributeError:
+            console.error('config file missing required section `Packages\'')
 
         # Set configuration file data
         set_from(self, install_dirs, 'prefix', True)
@@ -60,3 +64,11 @@ class BuildConfig:
         set_from(self, targets, 'build', True)
         set_from(self, targets, 'host', True)
         set_from(self, targets, 'target', True)
+
+        # Set list of packages
+        try:
+            self.packages = packages['packages'].split()
+        except KeyError:
+            console.error('no packages to build, specify packages with the\n' +
+                          '`packages\' variable in the `Packages\' section\n' +
+                          'of the configuration file')

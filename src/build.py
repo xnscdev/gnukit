@@ -18,6 +18,7 @@
 
 import config
 import console
+import pkgbuilder
 
 INSTALLDIRS = [
     'prefix',
@@ -56,6 +57,22 @@ def build_all():
     for d in TARGETS:
         value = getattr(build_conf, d)
         print('%-24s %s' % (d, value if value else 'default'))
+
+    print('\nPackages to install')
+    for d in build_conf.packages:
+        print('  ' + d)
+
+    response = input('\nProceed with installation? [Y/n] ')
+    if len(response) > 0 and response[0].lower() == 'n':
+        print('Installation cancelled.')
+        return
+
+    for d in build_conf.packages:
+        pkg = pkgbuilder.get_pkg(d)
+        if pkg is None:
+            console.warn('skipping package `%s\'' % d)
+        else:
+            pkgbuilder.build(pkg)
 
 if __name__ == '__main__':
     build_all()
