@@ -17,6 +17,7 @@
 from build import INSTALLDIRS
 import configparser
 import console
+import shutil
 
 GNU_INSTALLDIRS = {
     'prefix': '--prefix',
@@ -55,11 +56,15 @@ class Package:
         self.name = config['Package']['name']
         self.version = config['Package']['version']
         self.build = config['Package']['build']
+        self.srcdir = config['Package']['srcdir']
         self.urls = config['URLs'].values()
         self.config = build_conf
         self.__setup_build(config)
 
     def fetch(self):
+        pass
+
+    def extract(self):
         pass
 
     def configure(self):
@@ -89,6 +94,7 @@ class Package:
     def run(self):
         print('Installing %s-%s' % (self.name, self.version))
         self.fetch()
+        self.extract()
         self.configure()
 
 def get_pkg(name, build_conf):
@@ -101,3 +107,7 @@ def get_pkg(name, build_conf):
     else:
         return pkg
     return None
+
+def setup_buildenv():
+    shutil.rmtree('build')
+    os.mkdir('build')

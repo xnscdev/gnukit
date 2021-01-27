@@ -27,4 +27,5 @@ if [ -z "`$PYTHON --version 2>/dev/null`" ]; then
     exit 1
 fi
 
-$PYTHON "`dirname $0`/src/build.py"
+cd "`dirname $0`"
+$PYTHON src/build.py
