@@ -33,7 +33,7 @@ def get_pkg(name):
         pkg = Package(name)
     except ValueError:
         pass
-    except AttributeError:
+    except KeyError:
         console.error('package `%s\' metadata missing required fields' % name)
     else:
         return pkg
@@ -44,3 +44,6 @@ def config(pkg):
 
 def build(pkg):
     pass
+
+def run(pkg):
+    print('Installing %s-%s' % (pkg.name, pkg.version))

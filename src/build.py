@@ -66,13 +66,26 @@ def build_all():
     if len(response) > 0 and response[0].lower() == 'n':
         print('Installation cancelled.')
         return
+    print()
 
+    successes = 0
+    failures = 0
     for d in build_conf.packages:
         pkg = pkgbuilder.get_pkg(d)
         if pkg is None:
             console.warn('skipping package `%s\'' % d)
+            failures += 1
         else:
-            pkgbuilder.build(pkg)
+            try:
+                pkgbuilder.run(pkg)
+            except:
+                console.warn('package `%s\' failed to build' % d)
+                failures += 1
+            else:
+                successes += 1
+    print('\nFinished jobs.')
+    print('  %-24s %d' % ('Succeeded', successes))
+    print('  %-24s %d' % ('Failed', failures))
 
 if __name__ == '__main__':
     build_all()
