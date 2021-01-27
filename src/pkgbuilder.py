@@ -23,7 +23,7 @@ class Package:
                                            configparser.ExtendedInterpolation())
         if not config.read('pkg/%s.conf' % name):
             console.warn('no package `%s\' found in registry' % name)
-            raise ValueError()
+            raise ValueError
         self.name = config['Package']['name']
         self.version = config['Package']['version']
         self.build = config['Package']['build']
