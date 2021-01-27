@@ -18,6 +18,7 @@ import configparser
 import console
 import errno
 import hashlib
+import multiprocessing
 import os
 import shutil
 import subprocess
@@ -154,7 +155,7 @@ class Package:
             self.configure()
         print('\nBuilding %s-%s' % (self.name, self.version))
         if self.buildsys == 'GNU':
-            exec_process(['make'])
+            exec_process(['make', '-j', str(multiprocessing.cpu_count())])
 
     def test(self):
         self.build()
