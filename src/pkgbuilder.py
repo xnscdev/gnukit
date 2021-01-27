@@ -46,7 +46,7 @@ class Package:
                           self.name)
             raise ValueError
 
-    def __init__(self, name):
+    def __init__(self, name, build_conf):
         config = configparser.ConfigParser(interpolation=
                                            configparser.ExtendedInterpolation())
         if not config.read('pkg/%s.conf' % name):
@@ -56,11 +56,36 @@ class Package:
         self.version = config['Package']['version']
         self.build = config['Package']['build']
         self.urls = config['URLs'].values()
+        self.config = build_conf
         self.__setup_build(config)
 
-def get_pkg(name):
+    def configure(self):
+        if self.build == 'GNU':
+            conf_args = []
+            for k, v in GNU_INSTALLDIRS.items():
+                value = getattr(self.config, k)
+                if value:
+                    arg = '%s=%s' % (v, value)
+                    if k == 'docdir':
+                        arg += '/%s-%s' % (self.name, self.version)
+                    conf_args.append(arg)
+            conf_args.extend(self.configure_args.split())
+            conf_args = ' '.join(conf_args)
+            print(conf_args)
+
+    def build(self):
+        pass
+
+    def test(self):
+        pass
+
+    def run(self):
+        print('Installing %s-%s' % (self.name, self.version))
+        self.configure()
+
+def get_pkg(name, build_conf):
     try:
-        pkg = Package(name)
+        pkg = Package(name, build_conf)
     except ValueError:
         pass
     except KeyError:
@@ -68,29 +93,3 @@ def get_pkg(name):
     else:
         return pkg
     return None
-
-def config(pkg, build_conf):
-    if pkg.build == 'GNU':
-        configure_args = []
-        for k, v in GNU_INSTALLDIRS.items():
-            value = getattr(build_conf, k)
-            if value:
-                arg = '%s=%s' % (v, value)
-                if k == 'docdir':
-                    arg += '/%s-%s' % (pkg.name, pkg.version)
-                configure_args.append(arg)
-        configure_args.extend(pkg.configure_args.split())
-        configure_args = ' '.join(configure_args)
-        print(configure_args)
-    else:
-        raise ValueError
-
-def build(pkg):
-    pass
-
-def test(pkg):
-    pass
-
-def run(pkg, build_conf):
-    print('Installing %s-%s' % (pkg.name, pkg.version))
-    config(pkg, build_conf)

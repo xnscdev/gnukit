@@ -71,20 +71,18 @@ def build_all():
     successes = 0
     failures = 0
     for d in build_conf.packages:
-        pkg = pkgbuilder.get_pkg(d)
+        pkg = pkgbuilder.get_pkg(d, build_conf)
         if pkg is None:
             console.warn('skipping package `%s\'' % d)
             failures += 1
         else:
-            pkgbuilder.run(pkg, build_conf)
-            successes += 1
-            #try:
-            #    pkgbuilder.run(pkg, build_conf)
-            #except:
-            #    console.warn('package `%s\' failed to build' % d)
-            #    failures += 1
-            #else:
-            #    successes += 1
+            try:
+                pkg.run()
+            except:
+                console.warn('package `%s\' failed to build' % d)
+                failures += 1
+            else:
+                successes += 1
     print('\nFinished jobs.')
     print('  %-24s %d' % ('Succeeded', successes))
     print('  %-24s %d' % ('Failed', failures))
