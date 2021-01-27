@@ -76,8 +76,10 @@ class Package:
         self.__setup_build(config)
 
     def fetch(self):
+        print('Downloading %s-%s' % (self.name, self.version))
         for url in self.urls:
             try:
+                print('  Attempting to download archive from ' + url)
                 with urllib.request.urlopen(url) as f:
                     data = f.read()
                 with open('archive', 'wb') as f:
@@ -90,12 +92,14 @@ class Package:
         raise HTTPError
 
     def extract(self):
+        print('Extracting %s-%s' % (self.name, self.version))
         with tarfile.open('archive') as f:
             f.extractall('.')
         mkdir('build')
         os.chdir('build')
 
     def configure(self):
+        print('Configuring %s-%s' % (self.name, self.version))
         if self.build == 'GNU':
             conf_args = []
             for d in ['build', 'host', 'target']:
@@ -121,7 +125,6 @@ class Package:
 
     def run(self):
         cwd = os.getcwd()
-        print('Installing %s-%s' % (self.name, self.version))
         mkdir(self.name)
         os.chdir(self.name)
         self.fetch()
