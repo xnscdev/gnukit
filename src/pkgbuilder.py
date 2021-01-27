@@ -71,6 +71,8 @@ class Package:
     def __setup_build(self, config):
         if self.buildsys == 'GNU':
             self.configure_args = config['build.GNU']['configure_args']
+        elif self.buildsys == 'make':
+            self.test_target = config['build.make']['test_target']
         else:
             console.error('invalid build system specified for package `%s\'' %
                           self.name)
@@ -132,6 +134,8 @@ class Package:
         mkdir('build')
 
     def configure(self):
+        if self.buildsys == 'make':
+            return
         print('\nConfiguring %s-%s' % (self.name, self.version))
         if self.buildsys == 'GNU':
             conf_args = ['../%s/configure' % self.srcdir]
@@ -156,6 +160,9 @@ class Package:
         print('\nBuilding %s-%s' % (self.name, self.version))
         if self.buildsys == 'GNU':
             exec_process(['make', '-j', str(multiprocessing.cpu_count())])
+        elif self.buildsys == 'make':
+            exec_process(['make', '-j', str(multiprocessing.cpu_count()),
+                          '-C', '../' + self.srcdir])
 
     def test(self):
         self.build()
@@ -164,12 +171,16 @@ class Package:
         print('\nRunning unit tests for %s-%s' % (self.name, self.version))
         if self.buildsys == 'GNU':
             exec_process(['make', 'check'])
+        elif self.buildsys == 'make':
+            exec_process(['make', '-C', '../' + self.srcdir, self.test_target])
 
     def install(self):
         self.test()
         print('\nInstalling %s-%s' % (self.name, self.version))
         if self.buildsys == 'GNU':
             exec_process(['make', 'install'])
+        elif self.buildsys == 'make':
+            exec_process(['make', '-C', '../' + self.srcdir, 'install'])
 
     def run(self):
         global successes
