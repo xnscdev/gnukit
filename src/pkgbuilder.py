@@ -82,7 +82,13 @@ class Package:
 
     def fetch(self):
         if os.path.isfile('archive'):
-            return
+            with open('archive', 'rb') as f:
+                md5 = hashlib.md5(f.read()).hexdigest()
+            if md5 != self.md5:
+                print('  Bad archive MD5 checksum, re-downloading')
+                os.unlink('archive')
+            else:
+                return
         print('Downloading %s-%s' % (self.name, self.version))
         for url in self.urls:
             try:
@@ -106,6 +112,8 @@ class Package:
     def extract(self):
         if os.path.isdir(self.srcdir):
             return
+        if os.path.isfile(self.srcdir):
+            os.unlink(self.srcdir)
         print('Extracting %s-%s' % (self.name, self.version))
         with tarfile.open('archive') as f:
             f.extractall('.')
