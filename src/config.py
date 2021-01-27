@@ -16,23 +16,19 @@
 
 import configparser
 import console
-import re
 
-def set_from(self, prop, attr):
+def set_from(self, prop, attr, path=False):
     try:
-        value = prop[attr]
-        match = re.search('\\$\\{([\w_][\w\d_]*)\\}', value)
-        while match is not None:
-            value = value[:match.span()[0]] + \
-                getattr(self, match.group(1), '') + value[match.span()[1]:]
-            match = re.search('\\$\\{([\w_][\w\d_]*)\\}', value)
-        setattr(self, attr, value)
+        if path and len(prop[attr]) > 0 and prop[attr][0] != '/':
+            console.error('property `%s\' requires an absolute path' % attr)
+        setattr(self, attr, prop[attr])
     except KeyError:
         setattr(self, attr, '')
 
 class BuildConfig:
     def __init__(self):
-        config = configparser.ConfigParser()
+        config = configparser.ConfigParser(interpolation=
+                                           configparser.ExtendedInterpolation())
         if not config.read('build.conf'):
             console.error('couldn\'t read configuration file `build.conf\'')
         try:
@@ -45,22 +41,22 @@ class BuildConfig:
             console.error('config file missing required section `Targets\'')
 
         # Set configuration file data
-        set_from(self, install_dirs, 'prefix')
-        set_from(self, install_dirs, 'eprefix')
-        set_from(self, install_dirs, 'bindir')
-        set_from(self, install_dirs, 'sbindir')
-        set_from(self, install_dirs, 'libexecdir')
-        set_from(self, install_dirs, 'sysconfdir')
-        set_from(self, install_dirs, 'sharedstatedir')
-        set_from(self, install_dirs, 'localstatedir')
-        set_from(self, install_dirs, 'runstatedir')
-        set_from(self, install_dirs, 'libdir')
-        set_from(self, install_dirs, 'includedir')
-        set_from(self, install_dirs, 'datadir')
-        set_from(self, install_dirs, 'infodir')
-        set_from(self, install_dirs, 'localedir')
-        set_from(self, install_dirs, 'mandir')
-        set_from(self, install_dirs, 'docdir')
-        set_from(self, targets, 'build')
-        set_from(self, targets, 'host')
-        set_from(self, targets, 'target')
+        set_from(self, install_dirs, 'prefix', True)
+        set_from(self, install_dirs, 'eprefix', True)
+        set_from(self, install_dirs, 'bindir', True)
+        set_from(self, install_dirs, 'sbindir', True)
+        set_from(self, install_dirs, 'libexecdir', True)
+        set_from(self, install_dirs, 'sysconfdir', True)
+        set_from(self, install_dirs, 'sharedstatedir', True)
+        set_from(self, install_dirs, 'localstatedir', True)
+        set_from(self, install_dirs, 'runstatedir', True)
+        set_from(self, install_dirs, 'libdir', True)
+        set_from(self, install_dirs, 'includedir', True)
+        set_from(self, install_dirs, 'datadir', True)
+        set_from(self, install_dirs, 'infodir', True)
+        set_from(self, install_dirs, 'localedir', True)
+        set_from(self, install_dirs, 'mandir', True)
+        set_from(self, install_dirs, 'docdir', True)
+        set_from(self, targets, 'build', True)
+        set_from(self, targets, 'host', True)
+        set_from(self, targets, 'target', True)
