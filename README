@@ -1,2 +1,8 @@
 This repository contains a set of scripts and configuration files for building
 various software targeted for GNU/Linux systems from source on macOS platforms.
+
+See the `build.conf' configuration file to customize the installation
+directories, build targets, and packages to install.
+
+The `build.sh' script in the root source directory will build and install
+all packages requested as well as their dependencies.
