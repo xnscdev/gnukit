@@ -59,6 +59,7 @@ def mkdir(name, empty=True):
                       (name, os.strerror(e.errno)))
 
 def exec_process(args):
+    print(' '.join(args))
     subprocess.check_call(args, stdout=sys.stdout, stderr=sys.stderr)
 
 class Package:
@@ -126,7 +127,6 @@ class Package:
 
     def configure(self):
         print('\nConfiguring %s-%s' % (self.name, self.version))
-        os.chdir('build')
         if self.buildsys == 'GNU':
             conf_args = ['../%s/configure' % self.srcdir]
             for d in ['build', 'host', 'target']:
@@ -144,14 +144,26 @@ class Package:
             exec_process(conf_args)
 
     def build(self):
+        os.chdir('build')
+        if not os.path.isfile('config.status'):
+            self.configure()
         print('\nBuilding %s-%s' % (self.name, self.version))
-        exec_process(['make'])
+        if self.buildsys == 'GNU':
+            exec_process(['make'])
 
     def test(self):
-        pass
+        self.build()
+        if not self.config.run_tests:
+            return
+        print('\nRunning unit tests for %s-%s' % (self.name, self.version))
+        if self.buildsys == 'GNU':
+            exec_process(['make', 'check'])
 
     def install(self):
-        pass
+        self.test()
+        print('\nInstalling %s-%s' % (self.name, self.version))
+        if self.buildsys == 'GNU':
+            exec_process(['make', 'install'])
 
     def run(self):
         cwd = os.getcwd()
@@ -159,9 +171,6 @@ class Package:
         os.chdir(self.name)
         self.fetch()
         self.extract()
-        self.configure()
-        self.build()
-        self.test()
         self.install()
         os.chdir(cwd)
 

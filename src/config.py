@@ -72,3 +72,7 @@ class BuildConfig:
             console.error('no packages to build, specify packages with the\n' +
                           '`packages\' variable in the `Packages\' section\n' +
                           'of the configuration file')
+        try:
+            self.run_tests = packages['tests'] == 'true'
+        except KeyError:
+            self.run_tests = False
