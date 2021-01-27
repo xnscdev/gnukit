@@ -20,6 +20,8 @@ import errno
 import hashlib
 import os
 import shutil
+import subprocess
+import sys
 import tarfile
 import urllib.request
 
@@ -56,9 +58,12 @@ def mkdir(name, empty=True):
         console.error('failed to create directory `%s\': %s' %
                       (name, os.strerror(e.errno)))
 
+def exec_process(args):
+    subprocess.check_call(args, stdout=sys.stdout, stderr=sys.stderr)
+
 class Package:
     def __setup_build(self, config):
-        if self.build == 'GNU':
+        if self.buildsys == 'GNU':
             self.configure_args = config['build.GNU']['configure_args']
         else:
             console.error('invalid build system specified for package `%s\'' %
@@ -73,7 +78,7 @@ class Package:
             raise ValueError
         self.name = config['Package']['name']
         self.version = config['Package']['version']
-        self.build = config['Package']['build']
+        self.buildsys = config['Package']['build']
         self.srcdir = config['Package']['srcdir']
         self.md5 = config['Package']['md5']
         self.urls = config['URLs'].values()
@@ -118,12 +123,12 @@ class Package:
         with tarfile.open('archive') as f:
             f.extractall('.')
         mkdir('build')
-        os.chdir('build')
 
     def configure(self):
-        print('Configuring %s-%s' % (self.name, self.version))
-        if self.build == 'GNU':
-            conf_args = []
+        print('\nConfiguring %s-%s' % (self.name, self.version))
+        os.chdir('build')
+        if self.buildsys == 'GNU':
+            conf_args = ['../%s/configure' % self.srcdir]
             for d in ['build', 'host', 'target']:
                 value = getattr(self.config, d)
                 if value:
@@ -136,13 +141,16 @@ class Package:
                         arg += '/%s-%s' % (self.name, self.version)
                     conf_args.append(arg)
             conf_args.extend(self.configure_args.split())
-            conf_args = ' '.join(conf_args)
-            print(conf_args)
+            exec_process(conf_args)
 
     def build(self):
-        pass
+        print('\nBuilding %s-%s' % (self.name, self.version))
+        exec_process(['make'])
 
     def test(self):
+        pass
+
+    def install(self):
         pass
 
     def run(self):
@@ -152,6 +160,9 @@ class Package:
         self.fetch()
         self.extract()
         self.configure()
+        self.build()
+        self.test()
+        self.install()
         os.chdir(cwd)
 
 def get_pkg(name, build_conf):
