@@ -64,6 +64,7 @@ def build_all():
 
     successes = 0
     failures = 0
+    pkgbuilder.setup_buildenv()
     for d in build_conf.packages:
         pkg = pkgbuilder.get_pkg(d, build_conf)
         if pkg is None:

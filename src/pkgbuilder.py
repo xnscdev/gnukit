@@ -14,10 +14,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-from build import INSTALLDIRS
 import configparser
 import console
+import errno
+import os
 import shutil
+import urllib.request
 
 GNU_INSTALLDIRS = {
     'prefix': '--prefix',
@@ -38,6 +40,21 @@ GNU_INSTALLDIRS = {
     'docdir': '--docdir'
 }
 
+def mkdir(name):
+    try:
+        os.mkdir(name)
+    except OSError as e:
+        if e.errno == errno.EEXIST:
+            shutil.rmtree(name)
+            try:
+                os.mkdir(name)
+            except OSError as e:
+                console.error('failed to create directory `%s\': %s' %
+                              (name, os.strerror(e.errno)))
+        else:
+            console.error('failed to create directory `%s\': %s' %
+                          (name, os.strerror(e.errno)))
+
 class Package:
     def __setup_build(self, config):
         if self.build == 'GNU':
@@ -50,7 +67,7 @@ class Package:
     def __init__(self, name, build_conf):
         config = configparser.ConfigParser(interpolation=
                                            configparser.ExtendedInterpolation())
-        if not config.read('pkg/%s.conf' % name):
+        if not config.read('../pkg/%s.conf' % name):
             console.warn('no package `%s\' found in registry' % name)
             raise ValueError
         self.name = config['Package']['name']
@@ -62,7 +79,16 @@ class Package:
         self.__setup_build(config)
 
     def fetch(self):
-        pass
+        for url in self.urls:
+            try:
+                with urllib.request.urlopen(url) as f:
+                    data = f.read()
+                with open('archive', 'wb') as f:
+                    f.write(data)
+            except HTTPError:
+                pass # Try another URL
+            else:
+                return
 
     def extract(self):
         pass
@@ -93,9 +119,12 @@ class Package:
 
     def run(self):
         print('Installing %s-%s' % (self.name, self.version))
+        mkdir(self.name)
+        os.chdir(self.name)
         self.fetch()
         self.extract()
         self.configure()
+        os.chdir('..')
 
 def get_pkg(name, build_conf):
     try:
@@ -109,5 +138,9 @@ def get_pkg(name, build_conf):
     return None
 
 def setup_buildenv():
-    shutil.rmtree('build')
-    os.mkdir('build')
+    try:
+        shutil.rmtree('build')
+    except FileNotFoundError:
+        pass
+    mkdir('build')
+    os.chdir('build')
