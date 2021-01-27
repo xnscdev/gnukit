@@ -17,13 +17,27 @@
 import configparser
 import console
 
+class Package:
+    def __init__(self, name):
+        config = configparser.ConfigParser(interpolation=
+                                           configparser.ExtendedInterpolation())
+        if not config.read('pkg/%s.conf' % name):
+            console.warn('no package `%s\' found in registry' % name)
+            raise ValueError()
+        self.name = config['Package']['name']
+        self.version = config['Package']['version']
+        self.build = config['Package']['build']
+
 def get_pkg(name):
-    config = configparser.ConfigParser(interpolation=
-                                       configparser.ExtendedInterpolation())
-    if not config.read('../pkg/%s.conf' % name):
-        console.warn('no package `%s\' found in registry' % name)
-        return None
-    return config # TODO Use a package class
+    try:
+        pkg = Package(name)
+    except ValueError:
+        pass
+    except AttributeError:
+        console.error('package `%s\' metadata missing required fields' % name)
+    else:
+        return pkg
+    return None
 
 def config(pkg):
     pass
