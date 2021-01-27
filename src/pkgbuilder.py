@@ -116,12 +116,12 @@ class Package:
                     continue
                 with open('archive', 'wb') as f:
                     f.write(data)
-            except HTTPError:
+            except urllib.error.HTTPError:
                 pass # Try another URL
             else:
                 return
         console.warn('package `%s\' could not be fetched' % self.name)
-        raise HTTPError
+        raise urllib.error.HTTPError
 
     def extract(self):
         if os.path.isdir(self.srcdir):
