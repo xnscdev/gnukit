@@ -19,6 +19,7 @@ import console
 import errno
 import os
 import shutil
+import tarfile
 import urllib.request
 
 GNU_INSTALLDIRS = {
@@ -42,18 +43,14 @@ GNU_INSTALLDIRS = {
 
 def mkdir(name):
     try:
+        shutil.rmtree(name)
+    except FileNotFoundError:
+        pass
+    try:
         os.mkdir(name)
     except OSError as e:
-        if e.errno == errno.EEXIST:
-            shutil.rmtree(name)
-            try:
-                os.mkdir(name)
-            except OSError as e:
-                console.error('failed to create directory `%s\': %s' %
-                              (name, os.strerror(e.errno)))
-        else:
-            console.error('failed to create directory `%s\': %s' %
-                          (name, os.strerror(e.errno)))
+        console.error('failed to create directory `%s\': %s' %
+                      (name, os.strerror(e.errno)))
 
 class Package:
     def __setup_build(self, config):
@@ -89,9 +86,14 @@ class Package:
                 pass # Try another URL
             else:
                 return
+        console.warn('package `%s\' could not be fetched' % self.name)
+        raise HTTPError
 
     def extract(self):
-        pass
+        with tarfile.open('archive') as f:
+            f.extractall('.')
+        mkdir('build')
+        os.chdir('build')
 
     def configure(self):
         if self.build == 'GNU':
@@ -118,13 +120,14 @@ class Package:
         pass
 
     def run(self):
+        cwd = os.getcwd()
         print('Installing %s-%s' % (self.name, self.version))
         mkdir(self.name)
         os.chdir(self.name)
         self.fetch()
         self.extract()
         self.configure()
-        os.chdir('..')
+        os.chdir(cwd)
 
 def get_pkg(name, build_conf):
     try:
@@ -138,9 +141,5 @@ def get_pkg(name, build_conf):
     return None
 
 def setup_buildenv():
-    try:
-        shutil.rmtree('build')
-    except FileNotFoundError:
-        pass
     mkdir('build')
     os.chdir('build')
