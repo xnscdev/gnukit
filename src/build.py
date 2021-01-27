@@ -76,13 +76,15 @@ def build_all():
             console.warn('skipping package `%s\'' % d)
             failures += 1
         else:
-            try:
-                pkgbuilder.run(pkg)
-            except:
-                console.warn('package `%s\' failed to build' % d)
-                failures += 1
-            else:
-                successes += 1
+            pkgbuilder.run(pkg, build_conf)
+            successes += 1
+            #try:
+            #    pkgbuilder.run(pkg, build_conf)
+            #except:
+            #    console.warn('package `%s\' failed to build' % d)
+            #    failures += 1
+            #else:
+            #    successes += 1
     print('\nFinished jobs.')
     print('  %-24s %d' % ('Succeeded', successes))
     print('  %-24s %d' % ('Failed', failures))
