@@ -20,6 +20,7 @@ import config
 import console
 import pkgbuilder
 import os
+import subprocess
 import sys
 
 INSTALLDIRS = [
@@ -79,7 +80,7 @@ def build_all():
         elif d not in pkgbuilder.built:
             try:
                 pkg.run()
-            except ValueError:
+            except (ValueError, subprocess.CalledProcessError):
                 pkgbuilder.failures += 1
                 console.warn('package `%s\' failed to build' % d)
             else:

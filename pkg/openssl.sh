@@ -1,13 +1,13 @@
 set -e
 
 [ $# -eq 1 ]
-JOBS=`sysctl -n hw.cpu`
+JOBS=`python3 -c "import multiprocessing; print(multiprocessing.cpu_count())"`
 if [ "$1" = configure ]; then
     ../$SRCDIR/config --prefix=$PREFIX
 elif [ "$1" = build ]; then
-    make -j $JOBS
+    PATH=/usr/local/bin:/usr/bin make `test -n $JOBS && echo -j $JOBS`
 elif [ "$1" = test ]; then
-    make -j $JOBS test
+    PATH=/usr/local/bin:/usr/bin make `test -n $JOBS && echo -j $JOBS` test
 elif [ "$1" = install ]; then
     make install
 fi

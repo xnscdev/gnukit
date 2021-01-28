@@ -88,7 +88,8 @@ class Package:
             self.meson_args = config['build.meson']['meson_args']
         elif self.buildsys == 'script':
             try:
-                self.need_configure = config['build.script']['configure'] == 'true'
+                self.need_configure = \
+                    config['build.script']['configure'] == 'true'
             except KeyError:
                 self.need_configure = False
             self.script = os.path.realpath('../pkg/%s.sh' % self.name)
@@ -244,7 +245,7 @@ class Package:
             conf_args.extend(self.meson_args.split())
             conf_args.append('../' + self.srcdir)
             exec_process(conf_args, self.env)
-        elif self.buildsys == 'configure':
+        elif self.buildsys == 'script':
             exec_process(['sh', self.script, 'configure'], self.env)
 
     def build(self):
