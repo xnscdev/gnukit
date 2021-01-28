@@ -31,6 +31,7 @@ built = []
 listed = []
 confirm_notes = []
 successes = 0
+skips = 0
 failures = 0
 
 GNU_INSTALLDIRS = {
@@ -265,6 +266,7 @@ class Package:
 
     def run(self):
         global successes
+        global skips
         global failures
         for d in self.dependencies:
             if d in built:
@@ -272,7 +274,7 @@ class Package:
             try:
                 dpkg = Package(d, self.config)
             except AlreadyInstalled:
-                failures += 1
+                skips += 1
                 built.append(d)
                 continue
             if dpkg is None:

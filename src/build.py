@@ -87,6 +87,7 @@ def build_all():
                 pkgbuilder.built.append(d)
     print('\nFinished jobs.')
     print('  %-24s %d' % ('Succeeded', pkgbuilder.successes))
+    print('  %-24s %d' % ('Skipped', pkgbuilder.skips))
     print('  %-24s %d' % ('Failed', pkgbuilder.failures))
 
 if __name__ == '__main__':
