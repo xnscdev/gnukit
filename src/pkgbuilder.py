@@ -87,6 +87,10 @@ class Package:
         elif self.buildsys == 'meson':
             self.meson_args = config['build.meson']['meson_args']
         elif self.buildsys == 'script':
+            try:
+                self.configure = config['build.script']['configure'] == 'true'
+            except KeyError:
+                self.configure = False
             self.script = os.path.realpath('../pkg/%s.sh' % self.name)
         else:
             console.error('invalid build system specified for package `%s\'' %
@@ -204,7 +208,9 @@ class Package:
         mkdir('build')
 
     def configure(self):
-        if self.buildsys in ['make', 'script']:
+        if self.buildsys == 'make':
+            return
+        if self.buildsys == 'script' and not self.configure:
             return
         print('\nConfiguring %s-%s' % (self.name, self.version))
         if self.buildsys == 'GNU':
@@ -238,6 +244,8 @@ class Package:
             conf_args.extend(self.meson_args.split())
             conf_args.append('../' + self.srcdir)
             exec_process(conf_args, self.env)
+        elif self.buildsys == 'configure':
+            exec_process(['sh', self.script, 'configure'], self.env)
 
     def build(self):
         os.chdir('build')
