@@ -66,9 +66,13 @@ def mkdir(name, empty=True):
         console.error('failed to create directory `%s\': %s' %
                       (name, os.strerror(e.errno)))
 
-def exec_process(args):
+def exec_process(args, env=None):
     print(' '.join(args))
-    subprocess.check_call(args, stdout=sys.stdout, stderr=sys.stderr)
+    if env:
+        subprocess.check_call(args, stdout=sys.stdout, stderr=sys.stderr,
+                              env=env)
+    else:
+        subprocess.check_call(args, stdout=sys.stdout, stderr=sys.stderr)
 
 class Package:
     def __setup_build(self, config):
@@ -117,22 +121,34 @@ class Package:
             self.patch = os.path.realpath('../pkg/%s.patch' % name)
         else:
             self.patch = None
+
         self.name = config['Package']['name']
         self.version = config['Package']['version']
         if warn_installed and os.path.isfile(config['Package']['installed']):
             console.warn('%s-%s appears to already be installed' %
                          (self.name, self.version))
             raise ValueError
+
         self.buildsys = config['Package']['build']
         self.srcdir = config['Package']['srcdir']
         self.md5 = config['Package']['md5']
         self.dependencies = config['Package']['dependencies'].split()
+        self.urls = config['URLs'].values()
+        self.__setup_build(config)
+
         try:
             self.confirm_notes = config['Package']['notes']
         except KeyError:
             self.confirm_notes = None
-        self.urls = config['URLs'].values()
-        self.__setup_build(config)
+
+        self.env = {}
+        try:
+            env = config['Package']['env'].split()
+            for var in env:
+                pair = var.split('=')
+                self.env[pair[0]] = '='.join(pair[1:])
+        except KeyError:
+            pass
 
     def fetch(self):
         if os.path.isfile('archive'):
@@ -198,7 +214,7 @@ class Package:
                         pass # TODO Don't pass --runstatedir if unsupported
                     conf_args.append(arg)
             conf_args.extend(self.configure_args.split())
-            exec_process(conf_args)
+            exec_process(conf_args, self.env)
 
     def build(self):
         os.chdir('build')
