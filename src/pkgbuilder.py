@@ -81,9 +81,35 @@ class Package:
                           self.name)
             raise ValueError
 
-    def __init__(self, name, build_conf):
+    def __defattr(self, attr, default):
+        value = getattr(self.config, attr)
+        return '%s = %s' % (attr, value if value else default)
+
+    def __gen_installdirs(self):
+        ret = ['[InstallDirs]']
+        ret.append(self.__defattr('prefix', '/usr/local'))
+        ret.append(self.__defattr('eprefix', '${prefix}'))
+        ret.append(self.__defattr('bindir', '${eprefix}/bin'))
+        ret.append(self.__defattr('sbindir', '${eprefix}/sbin'))
+        ret.append(self.__defattr('libexecdir', '${eprefix}/libexec'))
+        ret.append(self.__defattr('sysconfdir', '${prefix}/etc'))
+        ret.append(self.__defattr('sharedstatedir', '${prefix}/com'))
+        ret.append(self.__defattr('localstatedir', '${prefix}/var'))
+        ret.append(self.__defattr('runstatedir', '${localstatedir}/run'))
+        ret.append(self.__defattr('libdir', '${eprefix}/lib'))
+        ret.append(self.__defattr('includedir', '${prefix}/include'))
+        ret.append(self.__defattr('datadir', '${prefix}/share'))
+        ret.append(self.__defattr('infodir', '${datadir}/info'))
+        ret.append(self.__defattr('localedir', '${datadir}/locale'))
+        ret.append(self.__defattr('mandir', '${datadir}/man'))
+        ret.append(self.__defattr('docdir', '${datadir}/doc'))
+        return '\n'.join(ret)
+
+    def __init__(self, name, build_conf, warn_installed=True):
         config = configparser.ConfigParser(interpolation=
                                            configparser.ExtendedInterpolation())
+        self.config = build_conf
+        config.read_string(self.__gen_installdirs())
         if not config.read('../pkg/%s.conf' % name):
             console.warn('no package `%s\' found in registry' % name)
             raise ValueError
@@ -93,6 +119,10 @@ class Package:
             self.patch = None
         self.name = config['Package']['name']
         self.version = config['Package']['version']
+        if warn_installed and os.path.isfile(config['Package']['installed']):
+            console.warn('%s-%s appears to already be installed' %
+                         (self.name, self.version))
+            raise ValueError
         self.buildsys = config['Package']['build']
         self.srcdir = config['Package']['srcdir']
         self.md5 = config['Package']['md5']
@@ -102,7 +132,6 @@ class Package:
         except KeyError:
             self.confirm_notes = None
         self.urls = config['URLs'].values()
-        self.config = build_conf
         self.__setup_build(config)
 
     def fetch(self):
@@ -165,6 +194,8 @@ class Package:
                     arg = '%s=%s' % (v, value)
                     if k == 'docdir':
                         arg += '/%s-%s' % (self.name, self.version)
+                    elif k == 'runstatedir':
+                        pass # TODO Don't pass --runstatedir if unsupported
                     conf_args.append(arg)
             conf_args.extend(self.configure_args.split())
             exec_process(conf_args)
@@ -203,7 +234,7 @@ class Package:
         for d in self.dependencies:
             if d in listed:
                 continue
-            dpkg = Package(d, self.config)
+            dpkg = Package(d, self.config, warn_installed=False)
             if dpkg is not None:
                 dpkg.add_confirm_notes()
         if self.name not in listed and self.confirm_notes is not None:
@@ -244,9 +275,9 @@ class Package:
         self.install()
         os.chdir(cwd)
 
-def get_pkg(name, build_conf):
+def get_pkg(name, build_conf, warn_installed=True):
     try:
-        pkg = Package(name, build_conf)
+        pkg = Package(name, build_conf, warn_installed)
     except ValueError:
         pass
     except KeyError:

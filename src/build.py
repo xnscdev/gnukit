@@ -61,7 +61,7 @@ def build_all():
     pkgbuilder.setup_buildenv()
     builddir = os.getcwd()
     for d in build_conf.packages:
-        pkg = pkgbuilder.get_pkg(d, build_conf)
+        pkg = pkgbuilder.get_pkg(d, build_conf, warn_installed=False)
         if pkg is not None:
             pkg.add_confirm_notes()
     print('\n'.join(pkgbuilder.confirm_notes))
