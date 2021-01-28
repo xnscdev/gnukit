@@ -74,6 +74,9 @@ def exec_process(args, env=None):
     else:
         subprocess.check_call(args, stdout=sys.stdout, stderr=sys.stderr)
 
+class AlreadyInstalled(RuntimeError):
+    pass
+
 class Package:
     def __setup_build(self, config):
         if self.buildsys == 'GNU':
@@ -127,7 +130,7 @@ class Package:
         if warn_installed and os.path.isfile(config['Package']['installed']):
             console.warn('%s-%s appears to already be installed' %
                          (self.name, self.version))
-            raise ValueError
+            raise AlreadyInstalled
 
         self.buildsys = config['Package']['build']
         self.srcdir = config['Package']['srcdir']
@@ -266,7 +269,12 @@ class Package:
         for d in self.dependencies:
             if d in built:
                 continue
-            dpkg = Package(d, self.config)
+            try:
+                dpkg = Package(d, self.config)
+            except AlreadyInstalled:
+                failures += 1
+                built.append(d)
+                continue
             if dpkg is None:
                 failures += 1
                 console.warn('unknown dependency ' + d)

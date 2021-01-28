@@ -79,7 +79,7 @@ def build_all():
         elif d not in pkgbuilder.built:
             try:
                 pkg.run()
-            except:
+            except ValueError:
                 pkgbuilder.failures += 1
                 console.warn('package `%s\' failed to build' % d)
             else:
