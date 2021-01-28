@@ -84,6 +84,10 @@ class Package:
         if not config.read('../pkg/%s.conf' % name):
             console.warn('no package `%s\' found in registry' % name)
             raise ValueError
+        if os.path.isfile('../pkg/%s.patch' % name):
+            self.patch = os.path.realpath('../pkg/%s.patch' % name)
+        else:
+            self.patch = None
         self.name = config['Package']['name']
         self.version = config['Package']['version']
         self.buildsys = config['Package']['build']
@@ -131,6 +135,13 @@ class Package:
         print('Extracting %s-%s' % (self.name, self.version))
         with tarfile.open('archive') as f:
             f.extractall('.')
+        # Apply a patch, if any
+        if self.patch is not None:
+            os.chdir(self.srcdir)
+            patchcmd = ['patch', '-p', '1', '-i', self.patch]
+            print(' '.join(patchcmd))
+            exec_process(patchcmd)
+            os.chdir('..')
         mkdir('build')
 
     def configure(self):
