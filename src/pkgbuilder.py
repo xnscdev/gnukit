@@ -87,7 +87,7 @@ class Package:
         elif self.buildsys == 'meson':
             self.meson_args = config['build.meson']['meson_args']
         elif self.buildsys == 'script':
-            self.script = os.realpath('../pkg/%s.sh' % self.name)
+            self.script = os.path.realpath('../pkg/%s.sh' % self.name)
         else:
             console.error('invalid build system specified for package `%s\'' %
                           self.name)
