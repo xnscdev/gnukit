@@ -91,6 +91,6 @@ def build_all():
     print('  %-24s %d' % ('Failed', pkgbuilder.failures))
 
 if __name__ == '__main__':
-    if sys.version_info[1] < 4:
-        console.error('this script requires at least Python 3.4')
+    if sys.version_info[1] < 5:
+        console.error('this script requires at least Python 3.5')
     build_all()
