@@ -76,3 +76,8 @@ class BuildConfig:
             self.run_tests = packages['tests'] == 'true'
         except KeyError:
             self.run_tests = False
+
+        try:
+            self.ignore_installed = packages['ignore_installed'] == 'true'
+        except KeyError:
+            self.ignore_installed = False

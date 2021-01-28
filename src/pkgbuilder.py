@@ -135,7 +135,8 @@ class Package:
         if warn_installed and os.path.isfile(config['Package']['installed']):
             console.warn('%s-%s appears to already be installed' %
                          (self.name, self.version))
-            raise AlreadyInstalled
+            if not self.config.ignore_installed:
+                raise AlreadyInstalled
 
         self.buildsys = config['Package']['build']
         self.srcdir = config['Package']['srcdir']
