@@ -70,6 +70,7 @@ def mkdir(name, empty=True):
 def exec_process(args, env=None):
     print(' '.join(args))
     if env:
+        env['PATH'] = os.getenv('PATH', '/usr/local/bin:/usr/bin')
         subprocess.check_call(args, stdout=sys.stdout, stderr=sys.stderr,
                               env=env)
     else:
