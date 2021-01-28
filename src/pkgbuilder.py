@@ -320,7 +320,7 @@ class Package:
                 failures += 1
                 console.warn('failed to build dependency %s-%s' %
                              (dpkg.name, dpkg.version))
-                raise Exception
+                raise ValueError
             else:
                 successes += 1
                 built.append(d)
