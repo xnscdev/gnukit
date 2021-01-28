@@ -138,9 +138,7 @@ class Package:
         # Apply a patch, if any
         if self.patch is not None:
             os.chdir(self.srcdir)
-            patchcmd = ['patch', '-p', '1', '-i', self.patch]
-            print(' '.join(patchcmd))
-            exec_process(patchcmd)
+            exec_process(['patch', '-p', '1', '-i', self.patch])
             os.chdir('..')
         mkdir('build')
 
