@@ -86,6 +86,8 @@ class Package:
             self.test_target = config['build.make']['test_target']
         elif self.buildsys == 'meson':
             self.meson_args = config['build.meson']['meson_args']
+        elif self.buildsys == 'script':
+            self.script = os.realpath('../pkg/%s.sh' % self.name)
         else:
             console.error('invalid build system specified for package `%s\'' %
                           self.name)
@@ -201,7 +203,7 @@ class Package:
         mkdir('build')
 
     def configure(self):
-        if self.buildsys == 'make':
+        if self.buildsys in ['make', 'script']:
             return
         print('\nConfiguring %s-%s' % (self.name, self.version))
         if self.buildsys == 'GNU':
@@ -248,6 +250,8 @@ class Package:
                           '-C', '../' + self.srcdir])
         elif self.buildsys == 'meson':
             exec_process(['ninja', '-C', '../' + self.srcdir])
+        elif self.buildsys == 'script':
+            exec_process(['sh', self.script, 'build'], self.env)
 
     def test(self):
         self.build()
@@ -260,6 +264,8 @@ class Package:
             exec_process(['make', '-C', '../' + self.srcdir, self.test_target])
         elif self.buildsys == 'meson':
             exec_process(['ninja', '-C', '../' + self.srcdir, 'test'])
+        elif self.buildsys == 'script':
+            exec_process(['sh', self.script, 'test'], self.env)
 
     def install(self):
         self.test()
@@ -270,6 +276,8 @@ class Package:
             exec_process(['make', '-C', '../' + self.srcdir, 'install'])
         elif self.buildsys == 'meson':
             exec_process(['ninja', '-C', '../' + self.srcdir, 'install'])
+        elif self.buildsys == 'script':
+            exec_process(['sh', self.script, 'install'], self.env)
 
     def add_confirm_notes(self):
         global confirm_notes
