@@ -58,14 +58,18 @@ def build_all():
     for d in build_conf.packages:
         print('  ' + d)
 
+    pkgbuilder.setup_buildenv()
+    builddir = os.getcwd()
+    for d in build_conf.packages:
+        pkg = pkgbuilder.get_pkg(d, build_conf)
+        if pkg is not None:
+            pkg.add_confirm_notes()
+    print('\n'.join(pkgbuilder.confirm_notes))
     response = input('\nProceed with installation? [Y/n] ')
     if len(response) > 0 and response[0].lower() == 'n':
         print('Installation cancelled.')
         return
     print()
-
-    pkgbuilder.setup_buildenv()
-    builddir = os.getcwd()
     for d in build_conf.packages:
         pkg = pkgbuilder.get_pkg(d, build_conf)
         if pkg is None:

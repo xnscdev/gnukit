@@ -24,9 +24,12 @@ import shutil
 import subprocess
 import sys
 import tarfile
+import textwrap
 import urllib.request
 
 built = []
+listed = []
+confirm_notes = []
 successes = 0
 failures = 0
 
@@ -94,6 +97,10 @@ class Package:
         self.srcdir = config['Package']['srcdir']
         self.md5 = config['Package']['md5']
         self.dependencies = config['Package']['dependencies'].split()
+        try:
+            self.confirm_notes = config['Package']['notes']
+        except KeyError:
+            self.confirm_notes = None
         self.urls = config['URLs'].values()
         self.config = build_conf
         self.__setup_build(config)
@@ -190,6 +197,21 @@ class Package:
             exec_process(['make', 'install'])
         elif self.buildsys == 'make':
             exec_process(['make', '-C', '../' + self.srcdir, 'install'])
+
+    def add_confirm_notes(self):
+        global confirm_notes
+        for d in self.dependencies:
+            if d in listed:
+                continue
+            dpkg = Package(d, self.config)
+            if dpkg is not None:
+                dpkg.add_confirm_notes()
+        if self.name not in listed and self.confirm_notes is not None:
+            confirm_notes.append('\n%s-%s:' % (self.name, self.version))
+            lines = textwrap.wrap(self.confirm_notes, 74,
+                                  break_long_words=False)
+            confirm_notes.extend(['  ' + l for l in lines])
+        listed.append(self.name)
 
     def run(self):
         global successes
