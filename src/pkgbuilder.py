@@ -181,7 +181,7 @@ class Package:
             else:
                 return
         console.warn('package `%s\' could not be fetched' % self.name)
-        raise urllib.error.HTTPError
+        raise ValueError
 
     def extract(self):
         if os.path.isdir(self.srcdir):
