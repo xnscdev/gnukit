@@ -90,7 +90,7 @@ class Package:
             try:
                 self.configure = config['build.script']['configure'] == 'true'
             except KeyError:
-                self.configure = False
+                self.need_configure = False
             self.script = os.path.realpath('../pkg/%s.sh' % self.name)
         else:
             console.error('invalid build system specified for package `%s\'' %
@@ -210,7 +210,7 @@ class Package:
     def configure(self):
         if self.buildsys == 'make':
             return
-        if self.buildsys == 'script' and not self.configure:
+        if self.buildsys == 'script' and not self.need_configure:
             return
         print('\nConfiguring %s-%s' % (self.name, self.version))
         if self.buildsys == 'GNU':
