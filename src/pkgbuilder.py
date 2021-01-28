@@ -84,6 +84,8 @@ class Package:
             self.configure_args = config['build.GNU']['configure_args']
         elif self.buildsys == 'make':
             self.test_target = config['build.make']['test_target']
+        elif self.buildsys == 'meson':
+            self.meson_args = config['build.meson']['meson_args']
         else:
             console.error('invalid build system specified for package `%s\'' %
                           self.name)
@@ -219,6 +221,20 @@ class Package:
                     conf_args.append(arg)
             conf_args.extend(self.configure_args.split())
             exec_process(conf_args, self.env)
+        elif self.buildsys == 'meson':
+            conf_args = ['meson']
+            # TODO Meson cross-compilation support
+            for k, v in GNU_INSTALLDIRS.items():
+                value = getattr(self.config, k)
+                if value:
+                    arg = '%s=%s' % (v, value)
+                    # Options unsupported by meson
+                    if k in ['runstatedir', 'docdir']:
+                        continue
+                    conf_args.append(arg)
+            conf_args.extend(self.meson_args.split())
+            conf_args.append('../' + self.srcdir)
+            exec_process(conf_args, self.env)
 
     def build(self):
         os.chdir('build')
@@ -230,6 +246,8 @@ class Package:
         elif self.buildsys == 'make':
             exec_process(['make', '-j', str(multiprocessing.cpu_count()),
                           '-C', '../' + self.srcdir])
+        elif self.buildsys == 'meson':
+            exec_process(['ninja', '-C', '../' + self.srcdir])
 
     def test(self):
         self.build()
@@ -240,6 +258,8 @@ class Package:
             exec_process(['make', 'check'])
         elif self.buildsys == 'make':
             exec_process(['make', '-C', '../' + self.srcdir, self.test_target])
+        elif self.buildsys == 'meson':
+            exec_process(['ninja', '-C', '../' + self.srcdir, 'test'])
 
     def install(self):
         self.test()
@@ -248,6 +268,8 @@ class Package:
             exec_process(['make', 'install'])
         elif self.buildsys == 'make':
             exec_process(['make', '-C', '../' + self.srcdir, 'install'])
+        elif self.buildsys == 'meson':
+            exec_process(['ninja', '-C', '../' + self.srcdir, 'install'])
 
     def add_confirm_notes(self):
         global confirm_notes
