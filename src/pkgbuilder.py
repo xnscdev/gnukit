@@ -260,7 +260,7 @@ class Package:
             exec_process(['make', '-j', str(multiprocessing.cpu_count()),
                           '-C', '../' + self.srcdir])
         elif self.buildsys == 'meson':
-            exec_process(['ninja', '-C', '../' + self.srcdir])
+            exec_process(['ninja'])
         elif self.buildsys == 'script':
             exec_process(['sh', self.script, 'build'], self.env)
 
@@ -274,7 +274,7 @@ class Package:
         elif self.buildsys == 'make':
             exec_process(['make', '-C', '../' + self.srcdir, self.test_target])
         elif self.buildsys == 'meson':
-            exec_process(['ninja', '-C', '../' + self.srcdir, 'test'])
+            exec_process(['ninja', 'test'])
         elif self.buildsys == 'script':
             exec_process(['sh', self.script, 'test'], self.env)
 
@@ -286,7 +286,7 @@ class Package:
         elif self.buildsys == 'make':
             exec_process(['make', '-C', '../' + self.srcdir, 'install'])
         elif self.buildsys == 'meson':
-            exec_process(['ninja', '-C', '../' + self.srcdir, 'install'])
+            exec_process(['ninja', 'install'])
         elif self.buildsys == 'script':
             exec_process(['sh', self.script, 'install'], self.env)
 
