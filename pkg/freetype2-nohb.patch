@@ -1,0 +1,33 @@
+diff -ur freetype-2.10.4.orig/include/freetype/config/ftoption.h freetype-2.10.4/include/freetype/config/ftoption.h
+--- freetype-2.10.4.orig/include/freetype/config/ftoption.h	2020-08-31 00:26:12.000000000 -0700
++++ freetype-2.10.4/include/freetype/config/ftoption.h	2021-01-28 17:01:37.309450008 -0800
+@@ -124,7 +124,7 @@
+    * When this macro is not defined, FreeType offers alternative LCD
+    * rendering technology that produces excellent output.
+    */
+-/* #define FT_CONFIG_OPTION_SUBPIXEL_RENDERING */
++#define FT_CONFIG_OPTION_SUBPIXEL_RENDERING
+ 
+ 
+   /**************************************************************************
+diff -ur freetype-2.10.4.orig/modules.cfg freetype-2.10.4/modules.cfg
+--- freetype-2.10.4.orig/modules.cfg	2020-08-24 13:21:47.000000000 -0700
++++ freetype-2.10.4/modules.cfg	2021-01-28 17:01:16.993481209 -0800
+@@ -111,7 +111,7 @@
+ 
+ # TrueType GX/AAT table validation.  Needs `ftgxval.c' below.
+ #
+-# AUX_MODULES += gxvalid
++AUX_MODULES += gxvalid
+ 
+ # Support for streams compressed with gzip (files with suffix .gz).
+ #
+@@ -130,7 +130,7 @@
+ 
+ # OpenType table validation.  Needs `ftotval.c' below.
+ #
+-# AUX_MODULES += otvalid
++AUX_MODULES += otvalid
+ 
+ # Auxiliary PostScript driver component to share common code.
+ #
